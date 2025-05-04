@@ -8,6 +8,7 @@ import Integrations from './components/Integrations';
 import AICampaignPlanner from './components/AICampaignPlanner';
 import AudienceMetrics from './components/AudienceMetrics';
 import CreativeMetrics from './components/CreativeMetrics';
+import { track } from '@vercel/analytics';
 
 const App: React.FC = () => {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -17,15 +18,36 @@ const App: React.FC = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
   };
 
+  // Track page navigation
+  const handlePageChange = (pageName: string) => {
+    // Update current page
+    setCurrentPage(pageName);
+    
+    // Track the navigation event with Vercel Analytics
+    track('page_view', { 
+      page: pageName,
+      timestamp: new Date().toISOString()
+    });
+    
+    console.log(`Navigation tracked: ${pageName}`);
+  };
+
   // Add event listener for custom setCurrentPage event
   useEffect(() => {
     const handleSetCurrentPage = (event: CustomEvent) => {
       if (event.detail) {
-        setCurrentPage(event.detail);
+        handlePageChange(event.detail);
       }
     };
 
     window.addEventListener('setCurrentPage', handleSetCurrentPage as EventListener);
+    
+    // Track initial page view
+    track('page_view', { 
+      page: currentPage,
+      isInitial: true,
+      timestamp: new Date().toISOString()
+    });
     
     return () => {
       window.removeEventListener('setCurrentPage', handleSetCurrentPage as EventListener);
@@ -70,7 +92,7 @@ const App: React.FC = () => {
       <Sidebar 
         isCollapsed={isSidebarCollapsed} 
         toggleSidebar={toggleSidebar}
-        setCurrentPage={setCurrentPage}
+        setCurrentPage={handlePageChange}
         currentPage={currentPage}
       />
       <div className="flex-1 flex flex-col overflow-hidden">
