@@ -17,6 +17,75 @@ import {
   faLayerGroup
 } from '@fortawesome/free-solid-svg-icons';
 
+// Define predefined personas if it's not imported
+const PREDEFINED_PERSONAS = [
+  {
+    id: 'tech-enthusiasts',
+    name: 'Tech Enthusiasts',
+    description: 'Early adopters interested in the latest technology products and innovations',
+    interests: ['Technology', 'Gadgets', 'Innovation', 'Startups'],
+    behaviors: ['Researches products extensively', 'Follows tech news', 'High online spending']
+  },
+  {
+    id: 'business-professionals',
+    name: 'Business Professionals',
+    description: 'Career-focused individuals looking for solutions to improve their work efficiency',
+    interests: ['Business', 'Productivity', 'Networking', 'Professional Development'],
+    behaviors: ['Researches work solutions', 'Active during business hours', 'Values efficiency']
+  },
+  {
+    id: 'health-conscious',
+    name: 'Health & Wellness Enthusiasts',
+    description: 'People committed to healthy living and personal wellness',
+    interests: ['Fitness', 'Nutrition', 'Wellness', 'Organic Products'],
+    behaviors: ['Regular exercise', 'Health-conscious purchases', 'Research health topics']
+  },
+  {
+    id: 'fashion-shoppers',
+    name: 'Fashion Shoppers',
+    description: 'Style-conscious consumers who follow fashion trends and make regular purchases',
+    interests: ['Fashion', 'Shopping', 'Beauty', 'Lifestyle'],
+    behaviors: ['Frequent online shopping', 'Brand conscious', 'Follows fashion influencers']
+  },
+  {
+    id: 'parents',
+    name: 'Modern Parents',
+    description: 'Parents looking for products and information to support their families',
+    interests: ['Parenting', 'Family Activities', "Children's Education", 'Family Health'],
+    behaviors: ['Researches family products', 'Values safety and quality', 'Plans family activities']
+  }
+];
+
+// Platform options
+const PLATFORM_OPTIONS = [
+  { id: 'facebook', name: 'Facebook' },
+  { id: 'instagram', name: 'Instagram' },
+  { id: 'linkedin', name: 'LinkedIn' },
+  { id: 'twitter', name: 'Twitter' },
+  { id: 'tiktok', name: 'TikTok' }
+];
+
+// Dimension options
+const DIMENSION_OPTIONS = [
+  { id: '1200x628', name: 'Facebook/LinkedIn (1200×628)' },
+  { id: '1080x1080', name: 'Instagram Square (1080×1080)' },
+  { id: '1080x1920', name: 'Instagram/FB Story (1080×1920)' },
+  { id: '1200x675', name: 'Twitter (1200×675)' },
+  { id: '1080x1920', name: 'TikTok (1080×1920)' }
+];
+
+// Call to action options
+const CTA_OPTIONS = [
+  'Learn More',
+  'Shop Now',
+  'Sign Up',
+  'Download',
+  'Get Started',
+  'Contact Us',
+  'Subscribe',
+  'Try Free'
+];
+
 // Define the interface for brand assets
 interface BrandAssets {
   logo: string | null;
@@ -109,9 +178,9 @@ const CreativeAssetLibrary: React.FC<CreativeAssetLibraryProps> = ({
     targetAudience: '',
     prompt: '',
     messageText: '',
-    callToAction: '',
-    platform: '',
-    dimensions: '',
+    callToAction: CTA_OPTIONS[0],
+    platform: PLATFORM_OPTIONS[0].id,
+    dimensions: DIMENSION_OPTIONS[0].id,
     variations: 1,
     includelogo: true,
     includeBrandColors: true
@@ -156,7 +225,8 @@ const CreativeAssetLibrary: React.FC<CreativeAssetLibraryProps> = ({
       
       reader.onload = (event) => {
         if (event.target?.result) {
-          const type = file.type.startsWith('image/') ? 'image' : 'video';
+          // Ensure type is strictly 'image' or 'video'
+          const type = file.type.startsWith('image/') ? 'image' as const : 'video' as const;
           const newAsset = {
             id: Date.now().toString(),
             type,
@@ -386,7 +456,7 @@ Key Terms: ${assets.tone.keywords?.join(', ') || 'N/A'}
     // Create a new asset from the preview
     const newAsset = {
       id: Date.now().toString(),
-      type: 'image' as 'image' | 'video',
+      type: 'image' as const,
       url: preview.url,
       name: `AI Generated - ${creativeForm.platform} - ${new Date().toLocaleDateString()}`,
       tags: ['ai-generated', creativeForm.platform, creativeForm.targetAudience, ...creativeForm.dimensions.split('x')],
