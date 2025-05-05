@@ -219,38 +219,60 @@ const CreativeAssetLibrary: React.FC<CreativeAssetLibraryProps> = ({
   const handleAssetUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!assets) return;
     
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
+    if (e.target.files && e.target.files.length > 0) {
+      // Process each file
+      Array.from(e.target.files).forEach((file, index) => {
+        const reader = new FileReader();
+        
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            // Ensure type is strictly 'image' or 'video'
+            const type = file.type.startsWith('image/') ? 'image' as const : 'video' as const;
+            
+            // Get dimensions from image
+            let dimensions = '1200x628'; // Default dimension
+            if (type === 'image') {
+              const img = new Image();
+              img.src = event.target.result as string;
+              img.onload = () => {
+                dimensions = `${img.width}x${img.height}`;
+              };
+            }
+            
+            // Get file format
+            const format = file.type.split('/').pop() || 'unknown';
+            
+            // Create asset name with convention: Dimension_creativeFormat_creativeName_Variance
+            const baseName = newAssetName || file.name.split('.')[0];
+            const assetName = `${dimensions}_${format}_${baseName}_${index + 1}`;
+            
+            const newAsset = {
+              id: `${Date.now()}-${index}`,
+              type,
+              url: event.target.result as string,
+              name: assetName,
+              tags: newAssetTags.split(',').map(tag => tag.trim()).filter(tag => tag),
+              aiGenerated: false,
+              dateCreated: new Date().toISOString()
+            };
+            
+            const newAssets = {
+              ...assets,
+              creativeAssets: [...(assets.creativeAssets || []), newAsset]
+            };
+            
+            setAssets(newAssets);
+            updateBrandAssets(newAssets);
+          }
+        };
+        
+        reader.readAsDataURL(file);
+      });
       
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          // Ensure type is strictly 'image' or 'video'
-          const type = file.type.startsWith('image/') ? 'image' as const : 'video' as const;
-          const newAsset = {
-            id: Date.now().toString(),
-            type,
-            url: event.target.result as string,
-            name: newAssetName || file.name,
-            tags: newAssetTags.split(',').map(tag => tag.trim()).filter(tag => tag),
-            aiGenerated: false,
-            dateCreated: new Date().toISOString()
-          };
-          
-          const newAssets = {
-            ...assets,
-            creativeAssets: [...(assets.creativeAssets || []), newAsset]
-          };
-          
-          setAssets(newAssets);
-          updateBrandAssets(newAssets);
-          setUploadingAsset(false);
-          setNewAssetName('');
-          setNewAssetTags('');
-        }
-      };
-      
-      reader.readAsDataURL(file);
+      // Reset form after all files are processed
+      setUploadingAsset(false);
+      setNewAssetName('');
+      setNewAssetTags('');
     }
   };
 
@@ -838,15 +860,7 @@ Key Terms: ${assets.tone.keywords?.join(', ') || 'N/A'}
                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   <FontAwesomeIcon icon={faFileUpload} className="mr-2" />
-                  Upload Asset
-                </button>
-                <button
-                  onClick={generateAIAsset}
-                  disabled={generatingAsset}
-                  className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                >
-                  <FontAwesomeIcon icon={faMagic} className="mr-2" />
-                  {generatingAsset ? 'Generating...' : 'Generate with AI'}
+                  Upload Assets
                 </button>
               </div>
             </div>
@@ -854,19 +868,22 @@ Key Terms: ${assets.tone.keywords?.join(', ') || 'N/A'}
             {/* Upload Form */}
             {uploadingAsset && (
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-3">Upload New Asset</h4>
+                <h4 className="font-medium text-gray-900 mb-3">Upload Assets</h4>
                 <div className="space-y-3">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Asset Name
+                      Base Asset Name (Optional)
                     </label>
                     <input
                       type="text"
                       value={newAssetName}
                       onChange={(e) => setNewAssetName(e.target.value)}
-                      placeholder="Enter asset name"
+                      placeholder="Enter base name for assets"
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Assets will be named: Dimension_Format_BaseName_Variant
+                    </p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -892,6 +909,7 @@ Key Terms: ${assets.tone.keywords?.join(', ') || 'N/A'}
                       accept="image/*,video/*"
                       ref={assetInputRef}
                       onChange={handleAssetUpload}
+                      multiple
                       className="hidden"
                     />
                     <button
@@ -899,7 +917,7 @@ Key Terms: ${assets.tone.keywords?.join(', ') || 'N/A'}
                       className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                     >
                       <FontAwesomeIcon icon={faFileUpload} className="mr-2" />
-                      Select File
+                      Select Files
                     </button>
                   </div>
                 </div>
