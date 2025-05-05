@@ -361,6 +361,7 @@ const AudienceSelection: React.FC<AudienceSelectionProps> = ({
             variant={audienceType === 'predefined' ? 'primary' : 'outline'}
             onClick={() => setAudienceType('predefined')}
             leftIcon={<FontAwesomeIcon icon={faUserFriends} />}
+            className="flex-1 md:flex-none"
           >
             Use Predefined Persona
           </Button>
@@ -368,6 +369,7 @@ const AudienceSelection: React.FC<AudienceSelectionProps> = ({
             variant={audienceType === 'custom' ? 'primary' : 'outline'}
             onClick={() => handleCustomAudience()}
             leftIcon={<FontAwesomeIcon icon={faBullseye} />}
+            className="flex-1 md:flex-none"
           >
             Create Custom Audience
           </Button>

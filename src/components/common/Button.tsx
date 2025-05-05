@@ -26,7 +26,7 @@ const Button: React.FC<ButtonProps> = ({
   ...rest
 }) => {
   // Base classes
-  let buttonClasses = `inline-flex items-center justify-center font-medium rounded focus:outline-none focus:ring-2 focus:ring-offset-2 ${transitions.DEFAULT} `;
+  let buttonClasses = `inline-flex items-center justify-center font-medium rounded focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all duration-150 ease-in-out `;
   
   // Size classes
   switch (size) {
@@ -54,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
       break;
     case 'primary':
     default:
-      buttonClasses += `bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-md hover:shadow-lg transition-all duration-200 `;
+      buttonClasses += `bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-sm hover:shadow-md `;
   }
   
   // Width, disabled, and additional classes
