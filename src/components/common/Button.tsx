@@ -54,7 +54,7 @@ const Button: React.FC<ButtonProps> = ({
       break;
     case 'primary':
     default:
-      buttonClasses += `bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-sm hover:shadow-md `;
+      buttonClasses += `bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm hover:shadow-md `;
   }
   
   // Width, disabled, and additional classes
@@ -78,9 +78,9 @@ const Button: React.FC<ButtonProps> = ({
         </>
       ) : (
         <>
-          {leftIcon && <span className="mr-2">{leftIcon}</span>}
-          {children}
-          {rightIcon && <span className="ml-2">{rightIcon}</span>}
+          {leftIcon && <span className="mr-2 text-current">{leftIcon}</span>}
+          <span className="text-current">{children}</span>
+          {rightIcon && <span className="ml-2 text-current">{rightIcon}</span>}
         </>
       )}
     </button>
