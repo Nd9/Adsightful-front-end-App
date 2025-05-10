@@ -9,11 +9,27 @@ import AICampaignPlanner from './components/AICampaignPlanner';
 import AudienceMetrics from './components/AudienceMetrics';
 import CreativeMetrics from './components/CreativeMetrics';
 import AudienceResearchAgent from './components/campaignPlanner/AudienceResearchAgent';
-import { track } from '@vercel/analytics';
+import CreativeAssetLibrary from './components/CreativeAssetLibrary';
+import WelcomeModal from './components/auth/WelcomeModal';
+import { authService } from './services/auth';
+
+// Define a custom track function since @vercel/analytics doesn't export 'track'
+const track = (event: string, data?: any) => {
+  // In a real app, this would use the actual analytics library
+  // For now, we'll just log to console
+  console.log(`Analytics event: ${event}`, data);
+};
 
 const App: React.FC = () => {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [currentPage, setCurrentPage] = useState('campaign-metrics');
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+
+  // Check if user is authenticated
+  useEffect(() => {
+    const isAuthenticated = authService.isAuthenticated();
+    setShowWelcomeModal(!isAuthenticated);
+  }, []);
 
   const toggleSidebar = () => {
     setSidebarCollapsed(!isSidebarCollapsed);
@@ -31,6 +47,11 @@ const App: React.FC = () => {
     });
     
     console.log(`Navigation tracked: ${pageName}`);
+  };
+
+  // Handle completion of welcome modal
+  const handleWelcomeComplete = () => {
+    setShowWelcomeModal(false);
   };
 
   // Add event listener for custom setCurrentPage event
@@ -53,7 +74,7 @@ const App: React.FC = () => {
     return () => {
       window.removeEventListener('setCurrentPage', handleSetCurrentPage as EventListener);
     };
-  }, []);
+  }, [currentPage]);
 
   // Function to render the correct page based on currentPage state
   const renderPage = () => {
@@ -82,7 +103,7 @@ const App: React.FC = () => {
       case 'campaign-builder':
         return <AICampaignPlanner pageName="Campaign Builder" />;
       case 'creative-assets':
-        return <AICampaignPlanner pageName="Creative Assets Library" />;
+        return <CreativeAssetLibrary />; // Use our new CreativeAssetLibrary component
       case 'taxonomy-utm':
         return <AICampaignPlanner pageName="Taxonomy and UTM Builder" />;
       default:
@@ -107,6 +128,11 @@ const App: React.FC = () => {
           {renderPage()}
         </main>
       </div>
+
+      {/* Show welcome modal for new users */}
+      {showWelcomeModal && (
+        <WelcomeModal onComplete={handleWelcomeComplete} />
+      )}
     </div>
   );
 };

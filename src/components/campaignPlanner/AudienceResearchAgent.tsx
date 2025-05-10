@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faSearch, 
@@ -33,6 +33,8 @@ import { AudienceBrief, Persona, FunnelMapping, ChannelStrategy } from '../../ty
 import { generateChannelStrategy as generateChannelStrategyAPI } from '../../services/channelStrategy';
 import Card from '../common/Card';
 import Button from '../common/Button';
+import { authService } from '../../services/auth';
+import { audienceStrategyService } from '../../services/audienceStrategy';
 
 const AudienceResearchAgent: React.FC = () => {
   // State for input fields
@@ -47,6 +49,19 @@ const AudienceResearchAgent: React.FC = () => {
   const [activeDataView, setActiveDataView] = useState<'profile' | 'channels' | 'funnel' | 'strategy'>('profile');
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [isGeneratingStrategy, setIsGeneratingStrategy] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveModalOpen, setSaveModalOpen] = useState(false);
+  const [strategyName, setStrategyName] = useState('');
+  const [strategyDescription, setStrategyDescription] = useState('');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  // Load company URL from auth service when component mounts
+  useEffect(() => {
+    const user = authService.getCurrentUser();
+    if (user && user.companyUrl && !url) {
+      setUrl(user.companyUrl);
+    }
+  }, [url]);
 
   // Toggle between URL and text input
   const toggleTab = (tab: 'url' | 'text') => {
@@ -390,6 +405,129 @@ const AudienceResearchAgent: React.FC = () => {
     );
   };
 
+  // Function to handle saving an audience strategy
+  const handleSaveStrategy = () => {
+    setSaveModalOpen(true);
+    setStrategyName(`Audience Strategy - ${new Date().toLocaleDateString()}`);
+    setStrategyDescription('');
+  };
+
+  // Function to handle the actual saving
+  const saveStrategy = () => {
+    if (!result || !authService.getCurrentUser()) return;
+
+    setIsSaving(true);
+    setSaveSuccess(false);
+
+    try {
+      const user = authService.getCurrentUser();
+      if (!user) throw new Error('User not authenticated');
+
+      // Save the strategy to our service
+      const savedStrategy = audienceStrategyService.saveStrategy(
+        user.id,
+        strategyName,
+        strategyDescription,
+        result
+      );
+
+      // Add reference to the user's saved strategies
+      authService.saveAudienceStrategy(savedStrategy.id);
+
+      // Show success message and close modal after a delay
+      setSaveSuccess(true);
+      setTimeout(() => {
+        setSaveModalOpen(false);
+        setSaveSuccess(false);
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to save strategy:', err);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Function to close the save modal
+  const closeSaveModal = () => {
+    setSaveModalOpen(false);
+    setSaveSuccess(false);
+  };
+
+  // Render the save strategy modal
+  const renderSaveModal = () => {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium text-gray-900">Save Audience Strategy</h3>
+            <button
+              onClick={closeSaveModal}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {saveSuccess ? (
+            <div className="p-4 bg-green-50 text-green-700 rounded-md mb-4">
+              Strategy saved successfully!
+            </div>
+          ) : (
+            <>
+              <div className="mb-4">
+                <label htmlFor="strategy-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Strategy Name
+                </label>
+                <input
+                  type="text"
+                  id="strategy-name"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  value={strategyName}
+                  onChange={(e) => setStrategyName(e.target.value)}
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="strategy-description" className="block text-sm font-medium text-gray-700 mb-1">
+                  Description (optional)
+                </label>
+                <textarea
+                  id="strategy-description"
+                  rows={3}
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  value={strategyDescription}
+                  onChange={(e) => setStrategyDescription(e.target.value)}
+                ></textarea>
+              </div>
+
+              <p className="text-sm text-gray-500 mb-4">
+                This strategy will be saved to your profile and can be used in the Creative Assets Library to generate targeted ads.
+              </p>
+
+              <div className="flex justify-end">
+                <button
+                  onClick={closeSaveModal}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md mr-2 hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveStrategy}
+                  disabled={!strategyName || isSaving}
+                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isSaving ? 'Saving...' : 'Save Strategy'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-full">
       <h2 className="text-2xl font-bold mb-6">Audience Research Agent</h2>
@@ -431,7 +569,9 @@ const AudienceResearchAgent: React.FC = () => {
                     disabled={isLoading}
                   />
                   <p className="mt-1 text-sm text-gray-500">
-                    We'll analyze the landing page to extract buyer personas
+                    {authService.getCurrentUser()?.companyUrl === url 
+                      ? "Using your company's website to analyze audience" 
+                      : "We'll analyze the landing page to extract buyer personas"}
                   </p>
                 </div>
               ) : (
@@ -604,6 +744,14 @@ const AudienceResearchAgent: React.FC = () => {
                 >
                   Export as JSON
                 </Button>
+                {authService.isAuthenticated() && (
+                  <Button
+                    onClick={handleSaveStrategy}
+                    className="mr-2"
+                  >
+                    Save to Profile
+                  </Button>
+                )}
                 <Button
                   onClick={() => {
                     // Here you would implement saving to your campaign data
@@ -639,6 +787,9 @@ const AudienceResearchAgent: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Save Strategy Modal */}
+      {saveModalOpen && renderSaveModal()}
     </div>
   );
 };

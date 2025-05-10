@@ -1,46 +1,62 @@
-# Getting Started with Create React App
+# Adsightful React Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A powerful AI-driven advertising platform that helps users create targeted ad campaigns with audience segmentation, creative generation, and performance tracking.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- User authentication with company profile
+- Audience research based on company website
+- AI-powered audience segmentation and persona creation
+- Platform-specific advertising strategy generation
+- Creative asset generation using OpenAI's DALL-E
+- Campaign performance tracking and insights
 
-### `npm start`
+## Getting Started
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Prerequisites
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Node.js 14.x or higher
+- npm or yarn
 
-### `npm test`
+### Installation
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. Clone the repository
+   ```bash
+   git clone https://github.com/your-username/adsightful-react.git
+   cd adsightful-react
+   ```
 
-### `npm run build`
+2. Install dependencies
+   ```bash
+   npm install
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+3. Create a `.env` file in the root directory with your OpenAI API key:
+   ```
+   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. Start the development server
+   ```bash
+   npm start
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## OpenAI Integration
 
-### `npm run eject`
+The platform uses OpenAI's DALL-E model to generate ad creatives based on audience strategies. To enable this feature:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Create an account at [OpenAI](https://platform.openai.com/)
+2. Generate an API key in your account dashboard
+3. Add the API key to your `.env` file as `REACT_APP_OPENAI_API_KEY`
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Usage
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. First time users will be prompted to enter their email, company name, and company URL
+2. Navigate to the Audience Research Agent to analyze your company's target audience
+3. Save audience strategies to your profile
+4. Use the Creative Asset Library to generate platform-specific ad creatives based on your audience strategies
+5. Download and use the generated creatives in your marketing campaigns
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## License
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+[MIT](LICENSE)
