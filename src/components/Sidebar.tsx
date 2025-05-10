@@ -18,7 +18,8 @@ import {
   faFileAlt,
   faTools,
   faPhotoVideo,
-  faCode
+  faCode,
+  faSearch
 } from '@fortawesome/free-solid-svg-icons';
 
 interface SidebarProps {
@@ -72,7 +73,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar, setCurren
                 currentPage === 'creative-assets' ||
                 currentPage === 'taxonomy-utm' ||
                 currentPage === 'media-plan' ||
-                currentPage === 'campaign-builder'
+                currentPage === 'campaign-builder' ||
+                currentPage === 'audience-research'
                 ? 'active-nav-item' : 'text-gray-600 hover:bg-gray-100'
               } rounded-lg focus-visible transition-colors duration-150 text-left`}
               onClick={toggleAiPlannerSubmenu}
@@ -96,6 +98,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, toggleSidebar, setCurren
                 >
                   <FontAwesomeIcon icon={faCalendarAlt} className="h-4 w-4 mr-2 text-gray-500" />
                   <span className="nav-text">Campaign planner</span>
+                </button>
+                <button 
+                  className={`flex items-center w-full px-4 py-2 ${currentPage === 'audience-research' ? 'text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-100'} rounded-lg focus-visible transition-colors duration-150 text-left text-sm`}
+                  onClick={() => setCurrentPage('audience-research')}
+                >
+                  <FontAwesomeIcon icon={faSearch} className="h-4 w-4 mr-2 text-gray-500" />
+                  <span className="nav-text">Audience Research Agent</span>
                 </button>
                 <button 
                   className={`flex items-center w-full px-4 py-2 ${currentPage === 'creative-assets' ? 'text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-100'} rounded-lg focus-visible transition-colors duration-150 text-left text-sm`}

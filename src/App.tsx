@@ -8,6 +8,7 @@ import Integrations from './components/Integrations';
 import AICampaignPlanner from './components/AICampaignPlanner';
 import AudienceMetrics from './components/AudienceMetrics';
 import CreativeMetrics from './components/CreativeMetrics';
+import AudienceResearchAgent from './components/campaignPlanner/AudienceResearchAgent';
 import { track } from '@vercel/analytics';
 
 const App: React.FC = () => {
@@ -74,6 +75,8 @@ const App: React.FC = () => {
       // New AI Campaign Planner submenu pages
       case 'campaign-planner': // Campaign Planner submenu
         return <AICampaignPlanner pageName="Campaign Planner" />;
+      case 'audience-research': // Audience Research Agent
+        return <AudienceResearchAgent />;
       case 'media-plan':
         return <AICampaignPlanner pageName="Media Plan" />;
       case 'campaign-builder':
