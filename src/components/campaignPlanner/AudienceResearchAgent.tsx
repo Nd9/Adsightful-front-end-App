@@ -135,13 +135,13 @@ const AudienceResearchAgent: React.FC = () => {
       <div 
         key={`persona-${index}`}
         className={`p-4 mb-4 rounded-lg cursor-pointer transition-all ${
-          isActive ? 'bg-blue-50 border-2 border-blue-500' : 'bg-white border border-gray-200 hover:border-blue-300'
+          isActive ? 'bg-primary-50 border-2 border-primary-500' : 'bg-white border border-gray-200 hover:border-primary-300'
         }`}
         onClick={() => setActivePersonaIndex(index)}
       >
         <div className="flex items-center mb-3">
-          <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-            <FontAwesomeIcon icon={faUser} className="text-blue-500" />
+          <div className="h-10 w-10 bg-primary-100 rounded-full flex items-center justify-center mr-3">
+            <FontAwesomeIcon icon={faUser} className="text-primary-500" />
           </div>
           <div>
             <h3 className="font-medium text-gray-800">{persona.name}</h3>
@@ -206,20 +206,20 @@ const AudienceResearchAgent: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h4 className="font-medium text-gray-700 mb-3 flex items-center">
-            <FontAwesomeIcon icon={faBullhorn} className="text-blue-500 mr-2" />
+            <FontAwesomeIcon icon={faBullhorn} className="text-primary-500 mr-2" />
             Target Advertising Channels
           </h4>
           <div className="grid grid-cols-2 gap-2">
             {persona.targetChannels.map((channel, idx) => (
               <div 
                 key={`channel-${idx}`} 
-                className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-center cursor-pointer hover:bg-blue-100 transition-colors"
+                className="bg-primary-100 border border-primary-300 rounded-lg p-3 flex items-center cursor-pointer hover:bg-primary-200 transition-colors"
                 onClick={() => generateChannelStrategy(channel, persona)}
               >
-                <span className="text-blue-500 mr-2">
+                <span className="text-primary-600 mr-2">
                   {getChannelIcon(channel)}
                 </span>
-                <span className="text-blue-700 text-sm font-medium">{channel}</span>
+                <span className="text-primary-700 text-sm font-medium">{channel}</span>
               </div>
             ))}
           </div>
@@ -251,7 +251,7 @@ const AudienceResearchAgent: React.FC = () => {
       <div>
         <div className="mb-4 flex items-center">
           <button 
-            className="text-blue-600 flex items-center hover:text-blue-800 mr-3"
+            className="text-primary-600 flex items-center hover:text-primary-800 mr-3"
             onClick={() => {
               setActiveDataView('channels');
               setSelectedChannel(null);
@@ -265,16 +265,16 @@ const AudienceResearchAgent: React.FC = () => {
           </h3>
         </div>
         
-        <div className="mb-8 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-          <h4 className="font-medium text-gray-800 mb-2 flex items-center">
-            <FontAwesomeIcon icon={faLayerGroup} className="text-blue-600 mr-2" />
-            Audience Segmentation
+        <div className="mb-8 bg-primary-50 border-l-4 border-primary-500 p-4 rounded-r-lg">
+          <h4 className="font-medium text-gray-700 mb-2 flex items-center">
+            <FontAwesomeIcon icon={faLayerGroup} className="text-primary-600 mr-2" />
+            Strategy Overview
           </h4>
           <ul className="space-y-2">
             {strategy.audienceSegmentation.map((segment, idx) => (
               <li key={`segment-${idx}`} className="flex items-start">
-                <span className="h-5 w-5 bg-blue-100 rounded-full flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
-                  <span className="h-2 w-2 bg-blue-500 rounded-full"></span>
+                <span className="h-5 w-5 bg-primary-100 rounded-full flex items-center justify-center mr-2 mt-0.5 flex-shrink-0">
+                  <span className="h-2 w-2 bg-primary-500 rounded-full"></span>
                 </span>
                 <span className="text-gray-700">{segment}</span>
               </li>
@@ -483,7 +483,7 @@ const AudienceResearchAgent: React.FC = () => {
                 <input
                   type="text"
                   id="strategy-name"
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   value={strategyName}
                   onChange={(e) => setStrategyName(e.target.value)}
                 />
@@ -496,7 +496,7 @@ const AudienceResearchAgent: React.FC = () => {
                 <textarea
                   id="strategy-description"
                   rows={3}
-                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                   value={strategyDescription}
                   onChange={(e) => setStrategyDescription(e.target.value)}
                 ></textarea>
@@ -516,7 +516,7 @@ const AudienceResearchAgent: React.FC = () => {
                 <button
                   onClick={saveStrategy}
                   disabled={!strategyName || isSaving}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-md hover:bg-primary-700 disabled:opacity-50"
                 >
                   {isSaving ? 'Saving...' : 'Save Strategy'}
                 </button>
@@ -539,13 +539,13 @@ const AudienceResearchAgent: React.FC = () => {
             <div className="mb-4">
               <div className="flex border-b">
                 <button
-                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'url' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'url' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
                   onClick={() => toggleTab('url')}
                 >
                   Website URL
                 </button>
                 <button
-                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'text' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  className={`px-4 py-2 font-medium text-sm ${activeTab === 'text' ? 'text-primary-600 border-b-2 border-primary-600' : 'text-gray-500 hover:text-gray-700'}`}
                   onClick={() => toggleTab('text')}
                 >
                   Raw Text
@@ -562,7 +562,7 @@ const AudienceResearchAgent: React.FC = () => {
                   <input
                     type="url"
                     id="website-url"
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="https://example.com"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
@@ -582,7 +582,7 @@ const AudienceResearchAgent: React.FC = () => {
                   <textarea
                     id="raw-text"
                     rows={6}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Enter product or website content here..."
                     value={rawText}
                     onChange={(e) => setRawText(e.target.value)}
@@ -599,10 +599,11 @@ const AudienceResearchAgent: React.FC = () => {
                 fullWidth
                 disabled={isLoading}
                 className="flex items-center justify-center"
+                variant="primary"
               >
                 {isLoading ? (
                   <>
-                    <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                    <FontAwesomeIcon icon={faSpinner} className="animate-spin text-primary-500 text-3xl mb-4" />
                     Analyzing Audience...
                   </>
                 ) : (
@@ -627,7 +628,7 @@ const AudienceResearchAgent: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <h3 className="font-medium text-gray-800">Product Summary</h3>
                   <button 
-                    className="text-blue-600 text-sm flex items-center hover:text-blue-800"
+                    className="text-primary-600 text-sm flex items-center hover:text-primary-800"
                     onClick={() => setEditMode(!editMode)}
                   >
                     <FontAwesomeIcon icon={faEdit} className="mr-1" />
@@ -681,7 +682,7 @@ const AudienceResearchAgent: React.FC = () => {
                     onClick={() => setActiveDataView('profile')} 
                     className={`py-2 px-4 border-b-2 font-medium text-sm ${
                       activeDataView === 'profile' 
-                        ? 'border-blue-500 text-blue-600' 
+                        ? 'border-primary-600 text-primary-600' 
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -694,7 +695,7 @@ const AudienceResearchAgent: React.FC = () => {
                     }} 
                     className={`ml-8 py-2 px-4 border-b-2 font-medium text-sm ${
                       (activeDataView === 'channels' || activeDataView === 'strategy')
-                        ? 'border-blue-500 text-blue-600' 
+                        ? 'border-primary-600 text-primary-600' 
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -704,7 +705,7 @@ const AudienceResearchAgent: React.FC = () => {
                     onClick={() => setActiveDataView('funnel')} 
                     className={`ml-8 py-2 px-4 border-b-2 font-medium text-sm ${
                       activeDataView === 'funnel' 
-                        ? 'border-blue-500 text-blue-600' 
+                        ? 'border-primary-600 text-primary-600' 
                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
                   >
@@ -722,7 +723,7 @@ const AudienceResearchAgent: React.FC = () => {
               )}
               {activeDataView === 'strategy' && isGeneratingStrategy && (
                 <div className="flex flex-col items-center justify-center p-12">
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin text-blue-500 text-3xl mb-4" />
+                  <FontAwesomeIcon icon={faSpinner} className="animate-spin text-primary-500 text-3xl mb-4" />
                   <p className="text-gray-700">Generating detailed strategy for {selectedChannel}...</p>
                 </div>
               )}
@@ -748,6 +749,7 @@ const AudienceResearchAgent: React.FC = () => {
                   <Button
                     onClick={handleSaveStrategy}
                     className="mr-2"
+                    variant="primary"
                   >
                     Save to Profile
                   </Button>
@@ -757,6 +759,7 @@ const AudienceResearchAgent: React.FC = () => {
                     // Here you would implement saving to your campaign data
                     alert('Audience brief saved to campaign!');
                   }}
+                  variant="primary"
                 >
                   Save to Campaign
                 </Button>
@@ -767,8 +770,8 @@ const AudienceResearchAgent: React.FC = () => {
           {/* Empty state */}
           {(!result || result.personas.length === 0) && !isLoading && (
             <Card className="h-full flex flex-col items-center justify-center text-center p-8">
-              <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                <FontAwesomeIcon icon={faUser} className="text-blue-500 h-8 w-8" />
+              <div className="h-16 w-16 bg-primary-100 rounded-full flex items-center justify-center mb-4">
+                <FontAwesomeIcon icon={faUser} className="text-primary-500 h-8 w-8" />
               </div>
               <h3 className="text-lg font-medium text-gray-700 mb-2">No audience brief generated yet</h3>
               <p className="text-gray-500 max-w-md mb-6">
