@@ -4,7 +4,7 @@ import { User } from '../auth';
 
 // Define environment variable for API key
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
+const API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
 
 // Add debug logging
 console.log('OpenAI API Key available:', !!OPENAI_API_KEY);
@@ -17,7 +17,7 @@ export interface ImageGenerationResult {
 }
 
 /**
- * Generate creative images for ads using OpenAI's gpt-image-1
+ * Generate creative images for ads using OpenAI's DALL-E 3
  */
 export async function generateAdCreatives(
   strategy: SavedStrategy,
@@ -83,18 +83,12 @@ async function generateSingleCreative(
       const response = await axios.post(
         API_ENDPOINT,
         {
-          model: "gpt-image-1",
-          messages: [
-            {
-              role: "system",
-              content: "You are a professional brand designer creating high-quality digital ad creatives."
-            },
-            {
-              role: "user",
-              content: prompt
-            }
-          ],
-          response_format: { type: "image_url" }
+          model: "dall-e-3",
+          prompt,
+          n: 1,
+          size: dimensions.apiSize,
+          quality: "standard",
+          response_format: "url"
         },
         {
           headers: {
@@ -107,10 +101,9 @@ async function generateSingleCreative(
       console.log('OpenAI API response status:', response.status);
       console.log('OpenAI API response data:', JSON.stringify(response.data, null, 2));
       
-      if (response.data && response.data.choices && response.data.choices.length > 0) {
-        const imageUrl = response.data.choices[0].message.content;
+      if (response.data && response.data.data && response.data.data.length > 0) {
         return {
-          url: imageUrl,
+          url: response.data.data[0].url,
           platform,
           dimensions: dimensions.displaySize,
           prompt
