@@ -4,7 +4,7 @@ import { User } from '../auth';
 
 // Define environment variable for API key
 const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-const API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+const API_ENDPOINT = 'https://api.openai.com/v1/chat/completions';
 
 // Add debug logging
 console.log('OpenAI API Key available:', !!OPENAI_API_KEY);
@@ -84,11 +84,17 @@ async function generateSingleCreative(
         API_ENDPOINT,
         {
           model: "gpt-image-1",
-          prompt,
-          n: 1,
-          size: dimensions.apiSize,
-          quality: "standard",
-          response_format: "url"
+          messages: [
+            {
+              role: "system",
+              content: "You are a professional brand designer creating high-quality digital ad creatives."
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          response_format: { type: "image_url" }
         },
         {
           headers: {
@@ -101,9 +107,10 @@ async function generateSingleCreative(
       console.log('OpenAI API response status:', response.status);
       console.log('OpenAI API response data:', JSON.stringify(response.data, null, 2));
       
-      if (response.data && response.data.data && response.data.data.length > 0) {
+      if (response.data && response.data.choices && response.data.choices.length > 0) {
+        const imageUrl = response.data.choices[0].message.content;
         return {
-          url: response.data.data[0].url,
+          url: imageUrl,
           platform,
           dimensions: dimensions.displaySize,
           prompt
@@ -139,7 +146,7 @@ async function generateSingleCreative(
 }
 
 /**
- * Create a detailed prompt for the image generation API
+ * Create a detailed prompt for the image generation API following industry design standards
  */
 function createPrompt(
   strategy: SavedStrategy,
@@ -148,44 +155,86 @@ function createPrompt(
   persona: any
 ): string {
   // Extract key details
-  const companyName = user.companyName;
-  const painPoints = persona.painPoints[0];
-  const motivation = persona.motivations[0];
-  const interest = persona.interests[0];
-  const psychographic = persona.psychographics[0];
+  const companyName = user.companyName || 'Brand';
+  const painPoints = persona.painPoints?.[0] || 'efficiency';
+  const motivation = persona.motivations?.[0] || 'success';
+  const interest = persona.interests?.[0] || 'technology';
+  const psychographic = persona.psychographics?.[0] || 'analytical';
+  const productSummary = strategy.audienceBrief?.productSummary || `${companyName}'s solution`;
   
-  // Create a base prompt tailored to the platform
-  let basePrompt = '';
+  // Define platform-specific details
+  let adSize = '';
+  let designStyle = '';
+  let ctaText = 'Learn More';
+  let colorPalette = '';
   
   switch (platform) {
     case 'Facebook':
-      basePrompt = `Create a Facebook ad for ${companyName} that addresses the pain point of "${painPoints}". The ad should appeal to ${psychographic} personalities. Make it visually engaging for a feed placement with the company name visible. Dimensions 1200x628.`;
+      adSize = '1200x628 Facebook landscape';
+      designStyle = 'Clean, engaging, conversation-starting';
+      ctaText = 'Learn More';
+      colorPalette = '#1877F2 (Facebook blue), #FFFFFF (white), #4267B2 (dark blue)';
       break;
     case 'Instagram':
-      basePrompt = `Design an Instagram post ad for ${companyName} focusing on the interest in "${interest}". Use vibrant colors and lifestyle imagery that would appeal to ${persona.role}s. Include subtle branding. Square format 1080x1080.`;
+      adSize = '1080x1080 Instagram square';
+      designStyle = 'Vibrant, visual-first, lifestyle-oriented';
+      ctaText = 'Shop Now';
+      colorPalette = '#E1306C (Instagram pink), #F77737 (orange), #FFFFFF (white)';
       break;
     case 'LinkedIn':
-      basePrompt = `Create a professional LinkedIn ad for ${companyName} that speaks to ${persona.role}s. Address the professional motivation of "${motivation}". Use a clean, corporate style with appropriate branding. Dimensions 1200x627.`;
+      adSize = '1200x627 LinkedIn landscape';
+      designStyle = 'Professional, corporate, authoritative';
+      ctaText = 'Discover More';
+      colorPalette = '#0077B5 (LinkedIn blue), #FFFFFF (white), #313335 (dark gray)';
       break;
     case 'Google':
-      basePrompt = `Design a Google Display ad for ${companyName} that clearly communicates a solution to "${painPoints}". Make it clean and action-oriented with a clear value proposition. Dimensions 300x250.`;
+      adSize = '300x250 Google Display';
+      designStyle = 'Clean, action-oriented, solution-focused';
+      ctaText = 'Get Started';
+      colorPalette = '#4285F4 (Google blue), #FFFFFF (white), #34A853 (green)';
       break;
     default:
-      basePrompt = `Create a digital ad for ${companyName} targeted at ${persona.role}s who are interested in ${interest} and motivated by ${motivation}. Include clear branding and a professional look.`;
+      adSize = '1200x628 landscape banner';
+      designStyle = 'Professional, clean, modern';
+      ctaText = 'Learn More';
+      colorPalette = '#007BFF (blue), #FFFFFF (white), #212529 (dark)';
   }
   
-  // Enhance the prompt with product and audience-specific details
-  return `${basePrompt} 
-  
-The ad should be targeted at ${persona.name}, who is a ${persona.role} in the ${persona.ageRange} age range.
+  // Build the structured prompt
+  const structuredPrompt = `
+🔧 System Prompt:
+You are a senior brand designer creating high-performing digital ad banners.
 
-Product/Service description: ${strategy.audienceBrief.productSummary}
+Audience: ${persona.name}, a ${persona.role} in the ${persona.ageRange} age range who is concerned about "${painPoints}", motivated by "${motivation}", and interested in "${interest}". They have a ${psychographic} personality.
 
-The ad should focus on the target audience's key pain point: "${painPoints}", 
-and appeal to their motivation: "${motivation}".
+Brand: ${companyName}
 
-Include a clear, professional design with the company name "${companyName}" visible.
-Make the ad highly professional, modern, and suitable for digital advertising.`;
+Product: ${productSummary}
+
+Value Proposition: Solution for "${painPoints}" that delivers "${motivation}"
+
+Tone & Style: ${designStyle}
+
+Primary CTA: ${ctaText}
+
+Ad Format: ${adSize}
+
+🎨 Design Guidelines:
+- Use a clean, modern layout with a clear visual hierarchy
+- Emphasize the product benefits visually
+- CTA must be bold, high-contrast, and easy to spot (bottom-right or center)
+- Maintain generous white space. Keep copy minimal and legible
+- Typography: Sans-serif, bold for headlines
+- Color Palette: ${colorPalette}
+- Composition: Use the Z-pattern or split-screen layout if product + text are both important
+
+🖼️ Output Goal:
+Generate a professional, human-designed ad creative that looks like it was created by a professional designer. It should appear as a polished, premium ad that would be approved by a marketing team. Make it visually appeal to the audience's tastes, highlight the product's unique selling point, and drive clicks via a compelling call-to-action.
+
+Include the company name "${companyName}" visibly in the design, and make sure the ad follows standard industry practices for ${platform} advertising.
+`;
+
+  return structuredPrompt;
 }
 
 /**
