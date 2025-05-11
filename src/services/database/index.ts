@@ -73,13 +73,16 @@ class DatabaseService {
           RETURNING id, email, company_name, company_url, created_at
         `;
         
-        if (updated.length > 0) {
+        // Cast the result to an array to ensure it has the length property
+        const updatedRows = updated as any[];
+        
+        if (updatedRows.length > 0) {
           return {
-            id: updated[0].id,
-            email: updated[0].email,
-            companyName: updated[0].company_name,
-            companyUrl: updated[0].company_url,
-            createdAt: updated[0].created_at
+            id: updatedRows[0].id,
+            email: updatedRows[0].email,
+            companyName: updatedRows[0].company_name,
+            companyUrl: updatedRows[0].company_url,
+            createdAt: updatedRows[0].created_at
           };
         }
       } else {
@@ -90,13 +93,16 @@ class DatabaseService {
           RETURNING id, email, company_name, company_url, created_at
         `;
         
-        if (inserted.length > 0) {
+        // Cast the result to an array to ensure it has the length property
+        const insertedRows = inserted as any[];
+        
+        if (insertedRows.length > 0) {
           return {
-            id: inserted[0].id,
-            email: inserted[0].email,
-            companyName: inserted[0].company_name,
-            companyUrl: inserted[0].company_url,
-            createdAt: inserted[0].created_at
+            id: insertedRows[0].id,
+            email: insertedRows[0].email,
+            companyName: insertedRows[0].company_name,
+            companyUrl: insertedRows[0].company_url,
+            createdAt: insertedRows[0].created_at
           };
         }
       }
@@ -124,16 +130,19 @@ class DatabaseService {
         WHERE email = ${email}
       `;
       
-      if (users.length === 0) {
+      // Cast the result to an array to ensure it has the length property
+      const userRows = users as any[];
+      
+      if (userRows.length === 0) {
         return null;
       }
       
       return {
-        id: users[0].id,
-        email: users[0].email,
-        companyName: users[0].company_name,
-        companyUrl: users[0].company_url,
-        createdAt: users[0].created_at
+        id: userRows[0].id,
+        email: userRows[0].email,
+        companyName: userRows[0].company_name,
+        companyUrl: userRows[0].company_url,
+        createdAt: userRows[0].created_at
       };
     } catch (error) {
       console.error('Failed to get user from database:', error);
