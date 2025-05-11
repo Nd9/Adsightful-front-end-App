@@ -8,7 +8,7 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 - Audience research based on company website
 - AI-powered audience segmentation and persona creation
 - Platform-specific advertising strategy generation
-- Creative asset generation using OpenAI's DALL-E
+- Creative asset generation using OpenAI's gpt-image-1
 - Campaign performance tracking and insights
 - Persistent storage of user data with Neon Database
 
@@ -49,7 +49,7 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 
 ## OpenAI Integration
 
-The platform uses OpenAI's DALL-E model to generate ad creatives based on audience strategies. To enable this feature:
+The platform uses OpenAI's gpt-image-1 model to generate ad creatives based on audience strategies. To enable this feature:
 
 1. Create an account at [OpenAI](https://platform.openai.com/)
 2. Generate an API key in your account dashboard

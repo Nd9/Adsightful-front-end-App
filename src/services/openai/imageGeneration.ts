@@ -17,7 +17,7 @@ export interface ImageGenerationResult {
 }
 
 /**
- * Generate creative images for ads using OpenAI's DALL-E
+ * Generate creative images for ads using OpenAI's gpt-image-1
  */
 export async function generateAdCreatives(
   strategy: SavedStrategy,
@@ -83,7 +83,7 @@ async function generateSingleCreative(
       const response = await axios.post(
         API_ENDPOINT,
         {
-          model: "dall-e-3",
+          model: "gpt-image-1",
           prompt,
           n: 1,
           size: dimensions.apiSize,
