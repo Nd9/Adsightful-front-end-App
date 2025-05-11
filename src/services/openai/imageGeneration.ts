@@ -67,8 +67,10 @@ async function generateSingleCreative(
     
     // Set the dimensions based on the platform
     const dimensions = getPlatformDimensions(platform);
+    const [width, height] = dimensions.displaySize.split('x').map(dim => parseInt(dim, 10));
     
-    console.log(`Generating creative for ${platform} with API key ${BFL_API_KEY ? 'present' : 'missing'}`);
+    console.log(`Generating creative for ${platform} with dimensions ${width}x${height}`);
+    console.log(`Using API key: ${BFL_API_KEY ? BFL_API_KEY.substring(0, 5) + '...' : 'missing'}`);
     
     // Check if API key is available
     if (!BFL_API_KEY) {
@@ -85,8 +87,8 @@ async function generateSingleCreative(
         API_ENDPOINT,
         {
           prompt,
-          width: parseInt(dimensions.displaySize.split('x')[0]),
-          height: parseInt(dimensions.displaySize.split('x')[1])
+          width,
+          height
         },
         {
           headers: {
@@ -106,12 +108,14 @@ async function generateSingleCreative(
       }
       
       // Step 2: Poll for the result
+      console.log(`Got request ID: ${requestId}, now polling for result...`);
       const imageUrl = await pollForResult(requestId);
       if (!imageUrl) {
         console.error('Failed to get image URL from BlackForest Labs API');
         return null;
       }
       
+      console.log(`Successfully generated image for ${platform}:`, imageUrl);
       return {
         url: imageUrl,
         platform,
@@ -121,7 +125,7 @@ async function generateSingleCreative(
       
     } catch (apiError: any) {
       // Handle API-specific errors
-      console.error(`BlackForest Labs API error for ${platform}:`, apiError);
+      console.error(`BlackForest Labs API error for ${platform}:`, apiError.message);
       
       // Log more detailed error information if available
       if (apiError.response) {
@@ -147,8 +151,8 @@ async function generateSingleCreative(
     }
     
     return null;
-  } catch (error) {
-    console.error(`Error generating ${platform} creative:`, error);
+  } catch (error: any) {
+    console.error(`Error generating ${platform} creative:`, error.message);
     return null;
   }
 }
@@ -161,6 +165,8 @@ async function pollForResult(requestId: string, maxAttempts = 60, delayMs = 1000
   
   while (attempts < maxAttempts) {
     try {
+      console.log(`Poll attempt ${attempts + 1} for request ${requestId}...`);
+      
       const response = await axios.get(RESULT_ENDPOINT, {
         headers: {
           'accept': 'application/json',
@@ -171,9 +177,10 @@ async function pollForResult(requestId: string, maxAttempts = 60, delayMs = 1000
         }
       });
       
-      console.log(`Poll attempt ${attempts + 1}:`, response.data);
+      console.log(`Poll status:`, response.data);
       
       if (response.data.status === 'Ready') {
+        console.log('Image URL:', response.data.result.sample);
         return response.data.result.sample;
       } else if (response.data.status === 'Failed') {
         console.error('Image generation failed:', response.data);
@@ -183,8 +190,12 @@ async function pollForResult(requestId: string, maxAttempts = 60, delayMs = 1000
       // Wait before the next polling attempt
       await new Promise(resolve => setTimeout(resolve, delayMs));
       attempts++;
-    } catch (error) {
-      console.error('Error polling for result:', error);
+    } catch (error: any) {
+      console.error('Error polling for result:', error.message);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Status code:', error.response.status);
+      }
       return null;
     }
   }
@@ -287,19 +298,21 @@ Include the company name "${companyName}" visibly in the design, and make sure t
 
 /**
  * Get the appropriate dimensions for different platforms
+ * For BlackForest Labs API, dimensions need to be multiples of 32
  */
 function getPlatformDimensions(platform: string): { apiSize: string; displaySize: string } {
+  // BlackForest Labs API requires dimensions to be multiples of 32
   switch (platform) {
     case 'Facebook':
-      return { apiSize: '1024x1024', displaySize: '1200x628' };
+      return { apiSize: '1024x1024', displaySize: '1216x640' };  // 1216 and 640 are multiples of 32
     case 'Instagram':
-      return { apiSize: '1024x1024', displaySize: '1080x1080' };
+      return { apiSize: '1024x1024', displaySize: '1024x1024' }; // 1024 is already a multiple of 32
     case 'LinkedIn':
-      return { apiSize: '1024x1024', displaySize: '1200x627' };
+      return { apiSize: '1024x1024', displaySize: '1216x640' };  // 1216 and 640 are multiples of 32
     case 'Google':
-      return { apiSize: '1024x1024', displaySize: '300x250' };
+      return { apiSize: '1024x1024', displaySize: '320x256' };   // 320 and 256 are multiples of 32
     default:
-      return { apiSize: '1024x1024', displaySize: '1200x628' };
+      return { apiSize: '1024x1024', displaySize: '1216x640' };  // 1216 and 640 are multiples of 32
   }
 }
 
