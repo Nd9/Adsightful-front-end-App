@@ -10,6 +10,7 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 - Platform-specific advertising strategy generation
 - Creative asset generation using OpenAI's DALL-E
 - Campaign performance tracking and insights
+- Persistent storage of user data with Neon Database
 
 ## Getting Started
 
@@ -17,6 +18,7 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 
 - Node.js 14.x or higher
 - npm or yarn
+- Neon PostgreSQL Database (for persistent storage)
 
 ### Installation
 
@@ -31,9 +33,13 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
    npm install
    ```
 
-3. Create a `.env` file in the root directory with your OpenAI API key:
+3. Create a `.env` file in the root directory with your API keys:
    ```
+   # OpenAI API Key
    REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   
+   # Neon Database URL
+   REACT_APP_NEON_DATABASE_URL=postgresql://username:password@your-neon-database-url/dbname
    ```
 
 4. Start the development server
@@ -48,6 +54,15 @@ The platform uses OpenAI's DALL-E model to generate ad creatives based on audien
 1. Create an account at [OpenAI](https://platform.openai.com/)
 2. Generate an API key in your account dashboard
 3. Add the API key to your `.env` file as `REACT_APP_OPENAI_API_KEY`
+
+## Neon Database Integration
+
+The application uses Neon PostgreSQL database to store user information:
+
+1. Create an account at [Neon](https://neon.tech)
+2. Create a new project in your dashboard
+3. Get your connection string from the connection details
+4. Add the connection string to your `.env` file as `REACT_APP_NEON_DATABASE_URL`
 
 ## Usage
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { authService } from '../../services/auth';
+import { databaseService } from '../../services/database';
 
 interface WelcomeModalProps {
   onComplete: () => void;
@@ -26,18 +27,38 @@ const WelcomeModal: React.FC<WelcomeModalProps> = ({ onComplete }) => {
 
     try {
       // Validate URL format
-      if (!companyUrl.match(/^(http|https):\/\/[^ "]+$/)) {
-        if (!companyUrl.includes('.')) {
+      let finalUrl = companyUrl;
+      if (!finalUrl.match(/^(http|https):\/\/[^ "]+$/)) {
+        if (!finalUrl.includes('.')) {
           setError('Please enter a valid URL including domain (e.g., company.com)');
           setIsLoading(false);
           return;
         }
         // Add https:// if missing
-        setCompanyUrl(url => url.startsWith('http') ? url : `https://${url}`);
+        finalUrl = finalUrl.startsWith('http') ? finalUrl : `https://${finalUrl}`;
+        setCompanyUrl(finalUrl);
       }
 
-      // Login/register the user
-      await authService.login(email, companyName, companyUrl);
+      // Login/register the user in local storage
+      await authService.login(email, companyName, finalUrl);
+      
+      // Save user information to the database
+      try {
+        const savedUser = await databaseService.saveUser({
+          email,
+          companyName,
+          companyUrl: finalUrl
+        });
+        
+        if (savedUser) {
+          console.log('User information saved to database:', savedUser);
+        } else {
+          console.warn('Failed to save user information to database, but local login succeeded');
+        }
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+        // Continue with local login even if database save fails
+      }
       
       // Notify parent component that login is complete
       onComplete();
