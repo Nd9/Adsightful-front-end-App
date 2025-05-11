@@ -3,11 +3,12 @@ import { SavedStrategy } from '../audienceStrategy';
 import { User } from '../auth';
 
 // Define environment variable for API key
-const OPENAI_API_KEY = process.env.REACT_APP_OPENAI_API_KEY;
-const API_ENDPOINT = 'https://api.openai.com/v1/images/generations';
+const BFL_API_KEY = process.env.REACT_APP_BFL_API_KEY;
+const API_ENDPOINT = 'https://api.us1.bfl.ai/v1/flux-pro-1.1';
+const RESULT_ENDPOINT = 'https://api.us1.bfl.ai/v1/get_result';
 
 // Add debug logging
-console.log('OpenAI API Key available:', !!OPENAI_API_KEY);
+console.log('BlackForest Labs API Key available:', !!BFL_API_KEY);
 
 export interface ImageGenerationResult {
   url: string;
@@ -17,7 +18,7 @@ export interface ImageGenerationResult {
 }
 
 /**
- * Generate creative images for ads using OpenAI's DALL-E 3
+ * Generate creative images for ads using BlackForest Labs' FLUX1
  */
 export async function generateAdCreatives(
   strategy: SavedStrategy,
@@ -25,8 +26,8 @@ export async function generateAdCreatives(
   platforms: string[] = ['Facebook', 'Instagram', 'LinkedIn', 'Google']
 ): Promise<ImageGenerationResult[]> {
   // Check if API key exists first
-  if (!OPENAI_API_KEY) {
-    console.warn('OpenAI API key not found, using mock creatives instead');
+  if (!BFL_API_KEY) {
+    console.warn('BlackForest Labs API key not found, using mock creatives instead');
     return generateMockCreatives(strategy, user, platforms);
   }
 
@@ -67,53 +68,60 @@ async function generateSingleCreative(
     // Set the dimensions based on the platform
     const dimensions = getPlatformDimensions(platform);
     
-    console.log(`Generating creative for ${platform} with API key ${OPENAI_API_KEY ? 'present' : 'missing'}`);
+    console.log(`Generating creative for ${platform} with API key ${BFL_API_KEY ? 'present' : 'missing'}`);
     
     // Check if API key is available
-    if (!OPENAI_API_KEY) {
-      console.error('OpenAI API key is not set. Please add REACT_APP_OPENAI_API_KEY to your .env file');
+    if (!BFL_API_KEY) {
+      console.error('BlackForest Labs API key is not set. Please add REACT_APP_BFL_API_KEY to your .env file');
       return null;
     }
     
     console.log(`Prompt for ${platform}:`, prompt);
     
     try {
-      // Call OpenAI API to generate the image
-      console.log('Calling OpenAI API...');
-      const response = await axios.post(
+      // Step 1: Create a request to generate the image
+      console.log('Calling BlackForest Labs FLUX API...');
+      const requestResponse = await axios.post(
         API_ENDPOINT,
         {
-          model: "dall-e-3",
           prompt,
-          n: 1,
-          size: dimensions.apiSize,
-          quality: "standard",
-          response_format: "url"
+          width: parseInt(dimensions.displaySize.split('x')[0]),
+          height: parseInt(dimensions.displaySize.split('x')[1])
         },
         {
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${OPENAI_API_KEY}`
+            'accept': 'application/json',
+            'x-key': BFL_API_KEY
           }
         }
       );
       
-      console.log('OpenAI API response status:', response.status);
-      console.log('OpenAI API response data:', JSON.stringify(response.data, null, 2));
+      console.log('BlackForest Labs API request response:', requestResponse.data);
+      const requestId = requestResponse.data.id;
       
-      if (response.data && response.data.data && response.data.data.length > 0) {
-        return {
-          url: response.data.data[0].url,
-          platform,
-          dimensions: dimensions.displaySize,
-          prompt
-        };
-      } else {
-        console.error('Unexpected response format from OpenAI API:', response.data);
+      if (!requestId) {
+        console.error('No request ID received from BlackForest Labs API');
+        return null;
       }
+      
+      // Step 2: Poll for the result
+      const imageUrl = await pollForResult(requestId);
+      if (!imageUrl) {
+        console.error('Failed to get image URL from BlackForest Labs API');
+        return null;
+      }
+      
+      return {
+        url: imageUrl,
+        platform,
+        dimensions: dimensions.displaySize,
+        prompt
+      };
+      
     } catch (apiError: any) {
       // Handle API-specific errors
-      console.error(`OpenAI API error for ${platform}:`, apiError);
+      console.error(`BlackForest Labs API error for ${platform}:`, apiError);
       
       // Log more detailed error information if available
       if (apiError.response) {
@@ -122,6 +130,13 @@ async function generateSingleCreative(
         console.error('Error response data:', apiError.response.data);
         console.error('Error response status:', apiError.response.status);
         console.error('Error response headers:', apiError.response.headers);
+        
+        // Check for specific error codes
+        if (apiError.response.status === 429) {
+          console.error('Rate limit exceeded. Maximum of 24 active tasks allowed.');
+        } else if (apiError.response.status === 402) {
+          console.error('Insufficient credits. Please add more credits at https://api.us1.bfl.ai');
+        }
       } else if (apiError.request) {
         // The request was made but no response was received
         console.error('Error request (no response received):', apiError.request);
@@ -136,6 +151,46 @@ async function generateSingleCreative(
     console.error(`Error generating ${platform} creative:`, error);
     return null;
   }
+}
+
+/**
+ * Poll for the result of a BlackForest Labs FLUX API request
+ */
+async function pollForResult(requestId: string, maxAttempts = 60, delayMs = 1000): Promise<string | null> {
+  let attempts = 0;
+  
+  while (attempts < maxAttempts) {
+    try {
+      const response = await axios.get(RESULT_ENDPOINT, {
+        headers: {
+          'accept': 'application/json',
+          'x-key': BFL_API_KEY
+        },
+        params: {
+          id: requestId
+        }
+      });
+      
+      console.log(`Poll attempt ${attempts + 1}:`, response.data);
+      
+      if (response.data.status === 'Ready') {
+        return response.data.result.sample;
+      } else if (response.data.status === 'Failed') {
+        console.error('Image generation failed:', response.data);
+        return null;
+      }
+      
+      // Wait before the next polling attempt
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      attempts++;
+    } catch (error) {
+      console.error('Error polling for result:', error);
+      return null;
+    }
+  }
+  
+  console.error('Exceeded maximum polling attempts');
+  return null;
 }
 
 /**

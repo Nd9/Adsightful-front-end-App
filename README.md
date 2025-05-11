@@ -8,7 +8,7 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 - Audience research based on company website
 - AI-powered audience segmentation and persona creation
 - Platform-specific advertising strategy generation
-- Creative asset generation using OpenAI's DALL-E 3
+- Creative asset generation using BlackForest Labs' FLUX1
 - Campaign performance tracking and insights
 - Persistent storage of user data with Neon Database
 
@@ -35,8 +35,8 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
 
 3. Create a `.env` file in the root directory with your API keys:
    ```
-   # OpenAI API Key
-   REACT_APP_OPENAI_API_KEY=your_openai_api_key_here
+   # BlackForest Labs API Key
+   REACT_APP_BFL_API_KEY=your_blackforest_labs_api_key_here
    
    # Neon Database URL
    REACT_APP_NEON_DATABASE_URL=postgresql://username:password@your-neon-database-url/dbname
@@ -47,13 +47,13 @@ A powerful AI-driven advertising platform that helps users create targeted ad ca
    npm start
    ```
 
-## OpenAI Integration
+## BlackForest Labs Integration
 
-The platform uses OpenAI's DALL-E 3 model to generate ad creatives based on audience strategies. To enable this feature:
+The platform uses BlackForest Labs' FLUX1 model to generate ad creatives based on audience strategies. To enable this feature:
 
-1. Create an account at [OpenAI](https://platform.openai.com/)
+1. Create an account at [BlackForest Labs](https://api.us1.bfl.ai/)
 2. Generate an API key in your account dashboard
-3. Add the API key to your `.env` file as `REACT_APP_OPENAI_API_KEY`
+3. Add the API key to your `.env` file as `REACT_APP_BFL_API_KEY`
 
 ## Neon Database Integration
 
