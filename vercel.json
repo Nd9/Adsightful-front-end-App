@@ -7,8 +7,5 @@
     { "src": "/api/(.*)", "dest": "server.js" },
     { "src": "^/static/(.*)", "dest": "/static/$1" },
     { "src": ".*", "dest": "/index.html" }
-  ],
-  "env": {
-    "REACT_APP_OPENAI_API_KEY": "@openai-api-key"
-  }
+  ]
 } 
